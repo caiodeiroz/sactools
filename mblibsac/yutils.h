@@ -41,3 +41,9 @@ float yu_linefit(float *y, int npts, float delta, float *a, float *b);
 
 /// Normalize the data sequence to 1, also removes the trend before normalization
 int yu_normalize(float *y, int npts);
+
+/// Calculate the mean value of the data points supplied
+float yu_dmean(float *y, int s_ind, int e_ind);
+
+/// Calculate the variance value of the data points supplied
+float yu_dvar(float *y, int s_ind, int e_ind);

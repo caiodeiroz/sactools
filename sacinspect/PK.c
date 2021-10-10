@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include <inspect.h>
 
@@ -511,18 +512,32 @@ float correlate(defs * d, int reference) {
 }
 
 float aic(float *data, SACHEAD * hdr, float start, float end) {
-	int istart, iend;
-	float *aic;
+    int istart, iend, M;
+    float min, max, var_a, var_b, *aic = NULL;
+
 	istart = hdu_roundNPTS(hdr, hdu_getNptsFromSeconds(hdr, start));
 	iend   = hdu_roundNPTS(hdr, hdu_getNptsFromSeconds(hdr, end));
+
+    M = 3;       //Magic AIC parameter
+
+    aic = (float *) malloc(sizeof(float) * hdr->npts);
 	
+    // Calculate aic array
 	for(int i=istart-100; i<iend+100; i++){
 		// aic
+        var_b = yu_dvar(data, istart-100, i);
+        var_a = yu_dvar(data, i, iend+100);
+        aic[i] = (i-M)*log(var_b) + (hdr->npts-M-i)*log(var_a);
 	}
 	
 	// Find min
-	float min, max; 
 	getminmax(aic, hdr, start, end, &min, &max);
+
+    // Free memory
+    if (aic != NULL){
+        free(aic);
+        aic=NULL;
+    }
 	
 	return min;
 }

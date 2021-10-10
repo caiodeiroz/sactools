@@ -99,7 +99,6 @@ void yu_rmean(float *y, int npts)
 		y[i] -= mean;
 }
 
-
 /** 
  * Normalize the data making the max value equal to 1
  * 
@@ -125,4 +124,45 @@ int yu_normalize(float *y, int npts)
 	for (i = 0; i < npts; i++)
 		y[i] = y[i] / max;
 	return im;
+}
+
+/**
+ * Calculate the mean value of the data input array.
+ *
+ * @param y Input data array
+ * @param npts Number of points in the input array.
+ */
+float yu_dmean(float *y, int s_ind, int e_ind){
+    int i,j;
+    double mean = 0.0;
+
+    for (i = 1, j = s_ind; j < e_ind; i++, j++){
+        mean += y[j];
+    }
+
+    mean = mean / i;
+
+    return mean;
+}
+
+/**
+ * Calculate the variance value of the data input array.
+ *
+ * @param y Input data array
+ * @param npts Number of points in the input array.
+ */
+float yu_dvar(float *y, int s_ind, int e_ind){
+    int i,j;
+    double mean,
+           var = 0.0;
+
+    mean = yu_dmean(y, s_ind, e_ind);
+
+    for (i = 1, j = s_ind; j < e_ind; i++, j++){
+        var += (y[j] - mean)*(y[j] - mean);
+    }
+
+    var = var / i;
+
+    return var;
 }
