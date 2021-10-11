@@ -136,13 +136,11 @@ float yu_dmean(float *y, int s_ind, int e_ind){
     int i,j;
     double mean = 0.0;
 
-    for (i = 1, j = s_ind; j < e_ind; i++, j++){
+    for (i = 1, j = s_ind; j <= e_ind; i++, j++){
         mean += y[j];
     }
 
-    mean = mean / i;
-
-    return mean;
+    return mean/i;
 }
 
 /**
@@ -158,11 +156,9 @@ float yu_dvar(float *y, int s_ind, int e_ind){
 
     mean = yu_dmean(y, s_ind, e_ind);
 
-    for (i = 1, j = s_ind; j < e_ind; i++, j++){
+    for (i = 1, j = s_ind; j <= e_ind; i++, j++){
         var += (y[j] - mean)*(y[j] - mean);
     }
 
-    var = var / i;
-
-    return var;
+    return var/i;
 }

@@ -512,34 +512,32 @@ float correlate(defs * d, int reference) {
 }
 
 float aic(float *data, SACHEAD * hdr, float start, float end) {
-    int istart, iend, M;
-    float min, max, var_a, var_b, *aic = NULL;
+    int istart, iend, M, j, imin;
+    float min, var_a, var_b, aic;
 
-	istart = hdu_roundNPTS(hdr, hdu_getNptsFromSeconds(hdr, start));
-	iend   = hdu_roundNPTS(hdr, hdu_getNptsFromSeconds(hdr, end));
+    istart = hdu_roundNPTS(hdr, hdu_getNptsFromSeconds(hdr, start));
+    iend   = hdu_roundNPTS(hdr, hdu_getNptsFromSeconds(hdr, end));
 
     M = 3;       //Magic AIC parameter
+    j = 0;
+    imin = 0;
+    min = 0.0;
 
-    aic = (float *) malloc(sizeof(float) * hdr->npts);
-	
-    // Calculate aic array
-	for(int i=istart-100; i<iend+100; i++){
-		// aic
-        var_b = yu_dvar(data, istart-100, i);
-        var_a = yu_dvar(data, i, iend+100);
-        aic[i] = (i-M)*log(var_b) + (hdr->npts-M-i)*log(var_a);
+    // Calculate aic
+    for(int i=istart-100; i<iend+100; i++){
+        if (i>=istart && i<=iend){
+            var_b = yu_dvar(data, istart-100, i);
+            var_a = yu_dvar(data, i, iend+100);
+            aic = (((i-M)*log(var_b)) + (((201+iend-istart)-M-i)*log(var_a)));
+            if (aic < min){
+                min = aic;
+                imin = j;
+            }
+            j++;
+        }
 	}
-	
-	// Find min
-	getminmax(aic, hdr, start, end, &min, &max);
 
-    // Free memory
-    if (aic != NULL){
-        free(aic);
-        aic=NULL;
-    }
-	
-	return min;
+    return (start+(imin*hdr->delta));
 }
 
 void PK_checkoption(defs * d, char ch, float ax, float ay)
@@ -560,6 +558,7 @@ void PK_checkoption(defs * d, char ch, float ax, float ay)
 					  AMark + d->searchsize);
 			setPick(pick, ts->current->head, pos);
 		}
+        break;
 	}
 
 	case ('k'): { // Run MCPCC on the current event
